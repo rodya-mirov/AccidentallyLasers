@@ -9,7 +9,8 @@ namespace AccidentallyLasers
     public class TileMapExtension : TileMap<MapCellExtension>
     {
         private MapCellExtension[] grassTiles;
-        private const int numGrassTiles = 4;
+        private static int[] grassTileIndices = new int[] { 0, 1, 2, 3, 4, 5, 6, 7};
+        private static int numGrassTiles = grassTileIndices.Length;
 
         public TileMapExtension()
             : base(false)
@@ -20,66 +21,17 @@ namespace AccidentallyLasers
                 grassTiles[i] = new MapCellExtension(i);
         }
 
+        private const bool viewMainAxes = false;
+
         public override MapCellExtension MakeMapCell(int x, int y)
         {
+            if (x * y == 0 && viewMainAxes)
+                return new MapCellExtension(40);
+
             Random ran = new Random(makeSeed(x, y));
 
-            for (int warmups = 0; warmups < 3; warmups++)
+            for (int warmups = 0; warmups < 0; warmups++)
                 ran.Next();
-
-            for (int realXMin = 0; realXMin <= 100; realXMin += 6)
-            {
-                for (int realYMin = 0; realYMin <= 100; realYMin += 7)
-                {
-                    int realXMax = realXMin + 3;
-                    int realYMax = realYMin + 4;
-
-                    if (x < realXMin || x > realXMax || y < realYMin || y > realYMax)
-                        continue;
-
-                    MapCellExtension output = new MapCellExtension(24);
-
-                    for (int level = 0; level <= 1; level++)
-                    {
-                        int xmin = realXMin;
-                        int xmax = xmin + 3 - 2 * level;
-
-                        int ymin = realYMin;
-                        int ymax = realYMin + 4;
-
-                        if (xmin <= x && x <= xmax && ymin <= y && y <= ymax)
-                        {
-                            int edgeIndex = findEdgeIndex(x, y, xmin, xmax, ymin, ymax);
-
-                            //if it's a wall, add that tile (randomized for flavor)
-                            if (x == xmax)
-                            {
-                                output.AddTile(ran.Next(4) + 8, level);
-                                if (y == ymin)
-                                    output.AddTile(17, level);
-                                else
-                                    output.AddTile(16, level);
-                            }
-                            if (y == ymin)
-                            {
-                                output.AddTile(ran.Next(4) + 12, level);
-                                if (level == 0)
-                                {
-                                    output.AddTile(20, 0);
-                                }
-                            }
-
-                            //add a random roof tile...
-                            output.AddTile(40 + ran.Next(4), level + 1);
-
-                            //and the edge of the roof, if appropriate
-                            output.AddTile(edgeIndex, level + 1);
-                        }
-                    }
-
-                    return output;
-                }
-            }
 
             return grassTiles[ran.Next(numGrassTiles)];
         }

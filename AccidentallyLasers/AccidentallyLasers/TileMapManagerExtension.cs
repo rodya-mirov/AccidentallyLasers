@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using IsometricEngine;
 using Microsoft.Xna.Framework;
+using AccidentallyLasers.WorldObjects;
+using AccidentallyLasers.WorldObjects.PhysicalObjects;
 
 namespace AccidentallyLasers
 {
@@ -11,9 +13,29 @@ namespace AccidentallyLasers
     {
         private const string TileSheetPath = @"Images\Tilesets\IsometricTileSheet";
 
+        protected List<InWorldObject> worldObjects;
+
         public TileMapManagerExtension(LaserGame game)
             : base(game, TileSheetPath)
         {
+            worldObjects = new List<InWorldObject>();
+
+            worldObjects.Add(new Townsman(0, 0));
+            worldObjects.Add(new Townsman(1, 0));
+            worldObjects.Add(new Townsman(1, 1));
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+
+            Townsman.LoadContent(this.game);
+        }
+
+        protected override IEnumerable<InWorldObject> InGameObjects()
+        {
+            foreach (InWorldObject obj in worldObjects)
+                yield return obj;
         }
 
         #region Pathing
